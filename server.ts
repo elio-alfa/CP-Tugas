@@ -1,0 +1,55 @@
+import express from 'express';
+import { createServer as createViteServer } from 'vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { apiRouter } from './src/server/routes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function startServer() {
+  const app = express();
+  const PORT = 3000;
+
+  // Body parser for JSON
+  app.use(express.json());
+
+  // Mount API router
+  app.use('/api', apiRouter);
+
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      system: 'Sistem Informasi Manajemen Stok Toko Sembako',
+      environment: process.env.NODE_ENV || 'development',
+      time: new Date().toISOString(),
+    });
+  });
+
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    const distPath = path.resolve(__dirname, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(distPath, 'index.html'));
+    });
+  } else {
+    // Vite middleware for fast dev server and HMR handling
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Toko Sembako Server] Running on http://0.0.0.0:${PORT}`);
+  });
+}
+
+startServer().catch((err) => {
+  console.error('[Toko Sembako Server] Failed to start:', err);
+  process.exit(1);
+});
