@@ -45,7 +45,9 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Toko Sembako Server] Running on http://0.0.0.0:${PORT}`);
+    console.log(`\n  Sistem Informasi Manajemen Stok Toko Sembako`);
+    console.log(`  ➜  Local:   http://localhost:${PORT}/`);
+    console.log(`  ➜  Network: http://127.0.0.1:${PORT}/\n`);
   });
 }
 

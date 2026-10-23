@@ -14,8 +14,6 @@ import { StockMovementsView } from './components/StockMovementsView.js';
 import { ReportsView } from './components/ReportsView.js';
 import { UsersView } from './components/UsersView.js';
 import { SettingsView } from './components/SettingsView.js';
-import { TestRunnerModal } from './components/TestRunnerModal.js';
-import { AcademicDocsModal } from './components/AcademicDocsModal.js';
 import { LoginModal } from './components/LoginModal.js';
 
 export default function App() {
@@ -39,10 +37,6 @@ export default function App() {
   const [salesList, setSalesList] = useState<SaleTransaction[]>([]);
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
-
-  // Modals state
-  const [isTestRunnerOpen, setIsTestRunnerOpen] = useState(false);
-  const [isAcademicDocsOpen, setIsAcademicDocsOpen] = useState(false);
 
   // 1. Initial Auth Check
   useEffect(() => {
@@ -205,8 +199,6 @@ export default function App() {
           user={currentUser}
           onLogout={handleLogout}
           onSwitchDemo={handleSwitchDemo}
-          onOpenTestRunner={() => setIsTestRunnerOpen(true)}
-          onOpenAcademicDocs={() => setIsAcademicDocsOpen(true)}
           lowStockCount={lowStockCount}
           onNavigateToLowStock={() => {
             setProductsInitialFilter('low');
@@ -372,18 +364,6 @@ export default function App() {
           )}
         </main>
       </div>
-
-      {/* Test Runner Modal */}
-      <TestRunnerModal
-        isOpen={isTestRunnerOpen}
-        onClose={() => setIsTestRunnerOpen(false)}
-      />
-
-      {/* Academic Docs Modal */}
-      <AcademicDocsModal
-        isOpen={isAcademicDocsOpen}
-        onClose={() => setIsAcademicDocsOpen(false)}
-      />
     </div>
   );
 }

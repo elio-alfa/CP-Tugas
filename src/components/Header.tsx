@@ -4,8 +4,6 @@ import {
   Store, 
   UserCheck, 
   LogOut, 
-  FileText, 
-  CheckCircle2, 
   AlertTriangle, 
   Menu,
   ShieldAlert,
@@ -16,8 +14,6 @@ interface HeaderProps {
   user: User | null;
   onLogout: () => void;
   onSwitchDemo: (role: 'admin' | 'petugas') => void;
-  onOpenTestRunner: () => void;
-  onOpenAcademicDocs: () => void;
   lowStockCount: number;
   onNavigateToLowStock: () => void;
   onToggleSidebarMobile: () => void;
@@ -28,8 +24,6 @@ export const Header: React.FC<HeaderProps> = ({
   user,
   onLogout,
   onSwitchDemo,
-  onOpenTestRunner,
-  onOpenAcademicDocs,
   lowStockCount,
   onNavigateToLowStock,
   onToggleSidebarMobile,
@@ -99,29 +93,6 @@ export const Header: React.FC<HeaderProps> = ({
               Petugas (Kasir)
             </button>
           </div>
-
-          {/* Test Runner Button (Academic Sidang Feature) */}
-          <button
-            onClick={onOpenTestRunner}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors cursor-pointer"
-            title="Jalankan pengujian otomatis 16 skenario untuk bukti sidang Tugas Akhir"
-          >
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span className="hidden sm:inline">Uji Sistem</span>
-            <span className="font-mono text-[10px] bg-emerald-200/60 px-1.5 py-0.5 rounded text-emerald-900 font-semibold">
-              16 Tes
-            </span>
-          </button>
-
-          {/* Academic Docs Button */}
-          <button
-            onClick={onOpenAcademicDocs}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors cursor-pointer"
-            title="Buka Dokumentasi Tugas Akhir (ERD, Use Case, Flowchart, Kamus Data)"
-          >
-            <FileText className="w-4 h-4 text-blue-600" />
-            <span className="hidden sm:inline">Dokumen TA</span>
-          </button>
 
           {/* Active User Badge & Logout */}
           <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
