@@ -1,0 +1,369 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { api, setStoredToken, getStoredToken, clearStoredToken } from './services/api.js';
+import { User, Product, Category, Supplier, StockInTransaction, SaleTransaction, StockMovement, StockAdjustment, DashboardData, StoreSettings } from './types/index.js';
+import { Header } from './components/Header.js';
+import { Sidebar, NavTab } from './components/Sidebar.js';
+import { DashboardView } from './components/DashboardView.js';
+import { ProductsView } from './components/ProductsView.js';
+import { CategoriesView } from './components/CategoriesView.js';
+import { SuppliersView } from './components/SuppliersView.js';
+import { StockInView } from './components/StockInView.js';
+import { SalesPosView } from './components/SalesPosView.js';
+import { StockOpnameView } from './components/StockOpnameView.js';
+import { StockMovementsView } from './components/StockMovementsView.js';
+import { ReportsView } from './components/ReportsView.js';
+import { UsersView } from './components/UsersView.js';
+import { SettingsView } from './components/SettingsView.js';
+import { LoginModal } from './components/LoginModal.js';
+
+export default function App() {
+  // Authentication state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Navigation state
+  const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
+  const [productsInitialFilter, setProductsInitialFilter] = useState('all');
+
+  // Application Data States
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [stockInList, setStockInList] = useState<StockInTransaction[]>([]);
+  const [salesList, setSalesList] = useState<SaleTransaction[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
+
+  // 1. Initial Auth Check
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        // Auto demo login as admin for instant interactive test drive
+        try {
+          const res = await api.switchDemoUser('admin');
+          setStoredToken(res.token);
+          setCurrentUser(res.user);
+        } catch {
+          setCurrentUser(null);
+        }
+      } else {
+        try {
+          const res = await api.getCurrentUser();
+          setCurrentUser(res.user);
+        } catch {
+          clearStoredToken();
+          setCurrentUser(null);
+        }
+      }
+      setAuthChecked(true);
+    };
+
+    checkAuth();
+  }, []);
+
+  // 2. Fetch Master and Operational Data
+  const refreshAllData = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      setDashboardLoading(true);
+
+      const [dashRes, prodRes, catRes, supRes, sinRes, salRes, movRes, setRes] = await Promise.all([
+        api.getDashboardSummary().catch(() => ({ data: null })),
+        api.getProducts().catch(() => ({ data: [] })),
+        api.getCategories().catch(() => ({ data: [] })),
+        api.getSuppliers().catch(() => ({ data: [] })),
+        api.getStockInList().catch(() => ({ data: [] })),
+        api.getSalesList().catch(() => ({ data: [] })),
+        api.getStockMovements().catch(() => ({ data: [] })),
+        api.getSettings().catch(() => ({ data: null })),
+      ]);
+
+      if (dashRes.data) setDashboardData(dashRes.data);
+      if (prodRes.data) setProducts(prodRes.data);
+      if (catRes.data) setCategories(catRes.data);
+      if (supRes.data) setSuppliers(supRes.data);
+      if (sinRes.data) setStockInList(sinRes.data);
+      if (salRes.data) setSalesList(salRes.data);
+      if (movRes.data) setStockMovements(movRes.data);
+      if (setRes.data) setSettings(setRes.data);
+    } catch (err) {
+      console.error('Error refreshing data:', err);
+    } finally {
+      setDashboardLoading(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      refreshAllData();
+    }
+  }, [currentUser, refreshAllData]);
+
+  // Auth actions
+  const handleLogin = async (credentials: { username: string; password: string }) => {
+    const res = await api.login(credentials);
+    setStoredToken(res.token);
+    setCurrentUser(res.user);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {}
+    clearStoredToken();
+    setCurrentUser(null);
+  };
+
+  const handleSwitchDemo = async (role: 'admin' | 'petugas') => {
+    try {
+      const res = await api.switchDemoUser(role);
+      setStoredToken(res.token);
+      setCurrentUser(res.user);
+      // If switched to staff and currently in admin tab, redirect to dashboard
+      if (role === 'petugas' && (activeTab === 'users' || activeTab === 'settings' || activeTab === 'stock-opname')) {
+        setActiveTab('dashboard');
+      }
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  // Tab Title helper
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return 'Dashboard Persediaan Sembako';
+      case 'products':
+        return 'Data Barang & Master SKU';
+      case 'categories':
+        return 'Kategori Komoditas Sembako';
+      case 'suppliers':
+        return 'Data Pemasok & Distributor';
+      case 'stock-in':
+        return 'Transaksi Penerimaan Barang Masuk';
+      case 'sales-pos':
+        return 'Kasir Penjualan (Point of Sale)';
+      case 'stock-opname':
+        return 'Stok Opname & Penyesuaian Fisik';
+      case 'stock-movements':
+        return 'Buku Besar Pergerakan Stok (Audit Ledger)';
+      case 'reports':
+        return 'Pusat Laporan & Rekapitulasi';
+      case 'users':
+        return 'Manajemen Pengguna & Otorisasi RBAC';
+      case 'settings':
+        return 'Pengaturan & Profil Toko';
+      default:
+        return 'Sistem Informasi Manajemen Stok';
+    }
+  };
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-mono text-slate-400">Memuat Sistem Informasi Toko Sembako...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <LoginModal onLogin={handleLogin} onSwitchDemo={handleSwitchDemo} />;
+  }
+
+  // Calculate low stock alert count
+  const lowStockCount = (dashboardData?.lowStockCount || 0) + (dashboardData?.outOfStockCount || 0);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        user={currentUser}
+        isOpenMobile={isSidebarMobileOpen}
+        onCloseMobile={() => setIsSidebarMobileOpen(false)}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Header */}
+        <Header
+          user={currentUser}
+          onLogout={handleLogout}
+          onSwitchDemo={handleSwitchDemo}
+          lowStockCount={lowStockCount}
+          onNavigateToLowStock={() => {
+            setProductsInitialFilter('low');
+            setActiveTab('products');
+          }}
+          onToggleSidebarMobile={() => setIsSidebarMobileOpen((prev) => !prev)}
+          activeTabTitle={getTabTitle()}
+        />
+
+        {/* View Router */}
+        <main className="p-4 sm:p-6 lg:p-8 flex-1">
+          {activeTab === 'dashboard' && (
+            <DashboardView
+              data={dashboardData}
+              loading={dashboardLoading}
+              onNavigateToStockIn={() => setActiveTab('stock-in')}
+              onNavigateToProducts={(status) => {
+                setProductsInitialFilter(status || 'all');
+                setActiveTab('products');
+              }}
+              onNavigateToSales={() => setActiveTab('sales-pos')}
+            />
+          )}
+
+          {activeTab === 'products' && (
+            <ProductsView
+              products={products}
+              categories={categories}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateProduct={async (data) => {
+                await api.createProduct(data);
+                refreshAllData();
+              }}
+              onUpdateProduct={async (id, data) => {
+                await api.updateProduct(id, data);
+                refreshAllData();
+              }}
+              onToggleStatus={async (id) => {
+                await api.toggleProductStatus(id);
+                refreshAllData();
+              }}
+              onDeleteProduct={async (id) => {
+                await api.deleteProduct(id);
+                refreshAllData();
+              }}
+              initialFilterStatus={productsInitialFilter}
+            />
+          )}
+
+          {activeTab === 'categories' && (
+            <CategoriesView
+              categories={categories}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateCategory={async (data) => {
+                await api.createCategory(data);
+                refreshAllData();
+              }}
+              onUpdateCategory={async (id, data) => {
+                await api.updateCategory(id, data);
+                refreshAllData();
+              }}
+              onDeleteCategory={async (id) => {
+                await api.deleteCategory(id);
+                refreshAllData();
+              }}
+            />
+          )}
+
+          {activeTab === 'suppliers' && (
+            <SuppliersView
+              suppliers={suppliers}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateSupplier={async (data) => {
+                await api.createSupplier(data);
+                refreshAllData();
+              }}
+              onUpdateSupplier={async (id, data) => {
+                await api.updateSupplier(id, data);
+                refreshAllData();
+              }}
+            />
+          )}
+
+          {activeTab === 'stock-in' && (
+            <StockInView
+              suppliers={suppliers}
+              products={products}
+              stockInList={stockInList}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateStockIn={async (data) => {
+                await api.createStockIn(data);
+                refreshAllData();
+              }}
+              onCancelStockIn={async (id, reason) => {
+                await api.cancelStockIn(id, reason);
+                refreshAllData();
+              }}
+            />
+          )}
+
+          {activeTab === 'sales-pos' && (
+            <SalesPosView
+              products={products}
+              categories={categories}
+              salesList={salesList}
+              settings={settings}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateSale={async (data) => {
+                const res = await api.createSale(data);
+                refreshAllData();
+                return res.data;
+              }}
+              onCancelSale={async (id, reason) => {
+                await api.cancelSale(id, reason);
+                refreshAllData();
+              }}
+            />
+          )}
+
+          {activeTab === 'stock-opname' && (
+            <StockOpnameView
+              products={products}
+              adjustments={(dashboardData as any)?.stock_adjustments || []}
+              user={currentUser}
+              onRefresh={refreshAllData}
+              onCreateAdjustment={async (data) => {
+                await api.createStockAdjustment(data);
+                refreshAllData();
+              }}
+            />
+          )}
+
+          {activeTab === 'stock-movements' && (
+            <StockMovementsView
+              movements={stockMovements}
+              products={products}
+              onRefresh={refreshAllData}
+            />
+          )}
+
+          {activeTab === 'reports' && (
+            <ReportsView categories={categories} settings={settings} />
+          )}
+
+          {activeTab === 'users' && (
+            <UsersView currentUser={currentUser} />
+          )}
+
+          {activeTab === 'settings' && (
+            <SettingsView
+              settings={settings}
+              onUpdateSettings={async (data) => {
+                await api.updateSettings(data);
+                refreshAllData();
+              }}
+              onRefresh={refreshAllData}
+            />
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
