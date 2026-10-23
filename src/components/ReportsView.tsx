@@ -1,31 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
-import { Category, StoreSettings } from '../types/index.js';
+import { Category, StoreSettings, User } from '../types/index.js';
 import { formatRupiah, formatStock, formatDateIndo, exportToCsv } from '../utils/format.js';
-import { StoreLogo } from './StoreLogo.js';
 import {
-  BarChart3,
-  Calendar,
   Download,
-  Printer,
-  Package,
-  ArrowDownLeft,
-  ShoppingCart,
-  AlertTriangle,
-  DollarSign,
-  TrendingUp,
-  Filter,
-  CheckCircle2
+  Printer
 } from 'lucide-react';
 
 interface ReportsViewProps {
   categories: Category[];
   settings: StoreSettings | null;
+  user?: User | null;
 }
 
 type ReportType = 'current-stock' | 'stock-in' | 'sales' | 'low-stock';
 
-export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }) => {
+export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings, user }) => {
   const [selectedReport, setSelectedReport] = useState<ReportType>('current-stock');
   const [startDate, setStartDate] = useState(
     new Date(Date.now() - 86400000 * 30).toISOString().split('T')[0]
@@ -63,12 +53,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
     fetchReport();
   }, [selectedReport, startDate, endDate, categoryId]);
 
-  // Export CSV handler
+  // Export to CSV
   const handleExportCsv = () => {
     if (!reportData || !reportData.items) return;
 
     if (selectedReport === 'current-stock') {
-      const headers = ['Kode SKU', 'Nama Barang', 'Kategori', 'Satuan', 'Stok Saat Ini', 'Batas Minimum', 'Harga Modal (Rp)', 'Harga Jual (Rp)', 'Nilai Modal Persediaan (Rp)', 'Potensi Omzet (Rp)', 'Potensi Margin (Rp)', 'Status'];
+      const headers = ['Kode SKU', 'Nama Barang', 'Kategori', 'Satuan', 'Stok Fisik', 'Batas Minimum', 'Harga Modal (Rp)', 'Harga Jual (Rp)', 'Valuasi Modal (Rp)', 'Potensi Omzet (Rp)', 'Margin (Rp)', 'Status'];
       const rows = reportData.items.map((i: any) => [
         i.sku,
         i.name,
@@ -143,7 +133,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
             Pusat Laporan & Rekapitulasi Persediaan
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Laporan posisi persediaan stok sembako, pergerakan barang, omzet penjualan, dan analisis pengadaan.
+            Laporan posisi persediaan stok sembako, pergerakan barang masuk, omzet penjualan, dan analisis pengadaan.
           </p>
         </div>
 
@@ -166,7 +156,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
         </div>
       </div>
 
-      {/* Report Selection Tabs (Clean Marketplace Styling, NO Icons Beside Numbers) */}
+      {/* Report Selection Tabs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <button
           type="button"
@@ -178,10 +168,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
           }`}
         >
           <div>
-            <span className="font-bold text-xs tracking-tight">1. Laporan Stok Saat Ini</span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider ${
+              selectedReport === 'current-stock' ? 'text-slate-300' : 'text-slate-400'
+            }`}>
+              Laporan 1
+            </span>
+            <p className="font-bold text-xs mt-0.5">Stok Saat Ini & Valuasi</p>
           </div>
-          <p className={`text-[11px] mt-1 line-clamp-1 ${selectedReport === 'current-stock' ? 'text-slate-300' : 'text-slate-500'}`}>
-            Persediaan fisik & valuasi modal
+          <p className={`text-[11px] mt-2 line-clamp-1 ${
+            selectedReport === 'current-stock' ? 'text-slate-300' : 'text-slate-500'
+          }`}>
+            Posisi fisik persediaan & kategori
           </p>
         </button>
 
@@ -195,10 +192,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
           }`}
         >
           <div>
-            <span className="font-bold text-xs tracking-tight">2. Laporan Barang Masuk</span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider ${
+              selectedReport === 'stock-in' ? 'text-slate-300' : 'text-slate-400'
+            }`}>
+              Laporan 2
+            </span>
+            <p className="font-bold text-xs mt-0.5">Rekapitulasi Barang Masuk</p>
           </div>
-          <p className={`text-[11px] mt-1 line-clamp-1 ${selectedReport === 'stock-in' ? 'text-slate-300' : 'text-slate-500'}`}>
-            Faktur pembelian dari pemasok
+          <p className={`text-[11px] mt-2 line-clamp-1 ${
+            selectedReport === 'stock-in' ? 'text-slate-300' : 'text-slate-500'
+          }`}>
+            Faktur belanja supplier & kuantitas
           </p>
         </button>
 
@@ -212,10 +216,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
           }`}
         >
           <div>
-            <span className="font-bold text-xs tracking-tight">3. Penjualan & Laba Kotor</span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider ${
+              selectedReport === 'sales' ? 'text-slate-300' : 'text-slate-400'
+            }`}>
+              Laporan 3
+            </span>
+            <p className="font-bold text-xs mt-0.5">Penjualan & Laba Kotor</p>
           </div>
-          <p className={`text-[11px] mt-1 line-clamp-1 ${selectedReport === 'sales' ? 'text-slate-300' : 'text-slate-500'}`}>
-            Omzet, HPP, & kalkulasi laba
+          <p className={`text-[11px] mt-2 line-clamp-1 ${
+            selectedReport === 'sales' ? 'text-slate-300' : 'text-slate-500'
+          }`}>
+            Omzet kasir, HPP, & margin profit
           </p>
         </button>
 
@@ -229,49 +240,56 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
           }`}
         >
           <div>
-            <span className="font-bold text-xs tracking-tight">4. Stok Kritis & Restock</span>
+            <span className={`text-[10px] uppercase font-bold tracking-wider ${
+              selectedReport === 'low-stock' ? 'text-slate-300' : 'text-slate-400'
+            }`}>
+              Laporan 4
+            </span>
+            <p className="font-bold text-xs mt-0.5">Stok Kritis & Saran Order</p>
           </div>
-          <p className={`text-[11px] mt-1 line-clamp-1 ${selectedReport === 'low-stock' ? 'text-slate-300' : 'text-slate-500'}`}>
-            Rekomendasi pengadaan barang
+          <p className={`text-[11px] mt-2 line-clamp-1 ${
+            selectedReport === 'low-stock' ? 'text-slate-300' : 'text-slate-500'
+          }`}>
+            Daftar komoditas di bawah ambang batas
           </p>
         </button>
       </div>
 
-      {/* Filters Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          {/* Date range picker for date-bound reports */}
+      {/* Filter Bar */}
+      <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           {(selectedReport === 'stock-in' || selectedReport === 'sales') && (
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-slate-400" />
-              <span className="font-semibold text-slate-600">Periode:</span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="py-1 px-2 text-xs rounded border border-slate-300"
-              />
-              <span className="text-slate-400">s/d</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="py-1 px-2 text-xs rounded border border-slate-300"
-              />
-            </div>
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-600">Dari:</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="py-1.5 px-2.5 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-600">Sampai:</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="py-1.5 px-2.5 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                />
+              </div>
+            </>
           )}
 
-          {/* Category filter for current-stock */}
           {selectedReport === 'current-stock' && (
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <span className="font-semibold text-slate-600">Kategori:</span>
+              <span className="text-xs font-semibold text-slate-600">Filter Kategori:</span>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="py-1 px-2 text-xs rounded border border-slate-300 bg-white"
+                className="py-1.5 px-2.5 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 bg-white"
               >
-                <option value="all">Semua Kategori</option>
+                <option value="all">Semua Kategori Sembako</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}
@@ -282,140 +300,128 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
           )}
         </div>
 
-        <button
-          onClick={fetchReport}
-          className="text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer self-end sm:self-center"
-        >
-          Muat Ulang Laporan
-        </button>
+        <span className="text-xs text-slate-500 font-medium">
+          Dihasilkan otomatis: <span className="font-semibold text-slate-800">{formatDateIndo(new Date().toISOString())}</span>
+        </span>
       </div>
 
-      {/* Summary Metrics Bar based on Report Type */}
-      {reportData && reportData.summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {selectedReport === 'current-stock' && (
-            <>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Jenis SKU</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalItems} item</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Fisik Unit</span>
-                <p className="text-xl font-bold tabular-nums text-slate-800 mt-1">{formatStock(reportData.summary.totalStockUnits)} unit</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Valuasi Modal</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalValuation)}</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Potensi Omzet Penjualan</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalPotentialRevenue)}</p>
-              </div>
-            </>
-          )}
-
-          {selectedReport === 'stock-in' && (
-            <>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Faktur Penerimaan</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalTransactions} faktur</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Unit Diterima</span>
-                <p className="text-xl font-bold tabular-nums text-slate-800 mt-1">+{reportData.summary.totalQuantity} unit</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs col-span-2">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Belanja Modal Masuk</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalAmount)}</p>
-              </div>
-            </>
-          )}
-
-          {selectedReport === 'sales' && (
-            <>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Omzet Penjualan</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalRevenue)}</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Beban Pokok (HPP)</span>
-                <p className="text-xl font-bold tabular-nums text-slate-600 mt-1">{formatRupiah(reportData.summary.totalHpp)}</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Laba Kotor Bersih</span>
-                <p className="text-xl font-bold tabular-nums text-emerald-700 mt-1">{formatRupiah(reportData.summary.grossProfit)}</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Persentase Margin</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.marginPercentage}%</p>
-              </div>
-            </>
-          )}
-
-          {selectedReport === 'low-stock' && (
-            <>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Barang Kritis</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalAlerts} item</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Stok Habis (Kosong)</span>
-                <p className="text-xl font-bold tabular-nums text-rose-700 mt-1">{reportData.summary.outOfStockCount} item</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Stok Menipis</span>
-                <p className="text-xl font-bold tabular-nums text-amber-700 mt-1">{reportData.summary.lowStockCount} item</p>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
-                <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Estimasi Modal Restock</span>
-                <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalEstimatedRestockCost)}</p>
-              </div>
-            </>
-          )}
+      {/* Loading state */}
+      {loading && (
+        <div className="p-12 bg-white rounded-lg border border-slate-200/90 shadow-2xs flex flex-col items-center justify-center">
+          <div className="w-8 h-8 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
+          <p className="mt-3 text-xs text-slate-500 font-medium">Menghitung rekapitulasi data laporan...</p>
         </div>
       )}
 
-      {/* Printable Report Canvas */}
-      <div id="printable-report" className="bg-white rounded-lg border border-slate-200/90 shadow-2xs overflow-hidden">
-        {/* Formal academic print letterhead */}
-        <div className="p-6 border-b border-slate-200 text-center space-y-1.5 flex flex-col items-center">
-          <div className="mb-1">
-            <StoreLogo logoUrl={settings?.logo_url} storeName={settings?.store_name} size="md" />
-          </div>
-          <h1 className="text-base font-bold text-slate-900 uppercase tracking-tight">
-            {settings?.store_name || 'TOKO SEMBAKO BERKAH MANDIRI'}
-          </h1>
-          <p className="text-xs text-slate-500">
-            {settings?.address || 'Jl. Pemuda Raya No. 108, Rawamangun, Jakarta'} · Telp: {settings?.phone || '0812-9876-5432'}
-          </p>
-          <div className="pt-2">
-            <span className="inline-block px-3 py-1 bg-slate-100 rounded-md text-xs font-bold uppercase tracking-wider text-slate-800">
-              {selectedReport === 'current-stock' && 'Laporan Posisi Persediaan Stok Sembako'}
-              {selectedReport === 'stock-in' && `Laporan Rekapitulasi Barang Masuk (Periode: ${formatDateIndo(startDate)} s/d ${formatDateIndo(endDate)})`}
-              {selectedReport === 'sales' && `Laporan Analisis Penjualan & Laba Kotor (Periode: ${formatDateIndo(startDate)} s/d ${formatDateIndo(endDate)})`}
-              {selectedReport === 'low-stock' && 'Laporan Deteksi Stok Kritis & Perencanaan Pengadaan'}
-            </span>
-          </div>
-          <p className="text-[10px] text-slate-400 mt-1">Dicetak pada: {new Date().toLocaleString('id-ID')}</p>
-        </div>
+      {/* Report Content */}
+      {!loading && reportData && (
+        <div className="space-y-6">
+          {/* Summary Metric Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {selectedReport === 'current-stock' && (
+              <>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Item SKU</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalItems} item</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Fisik Unit</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-800 mt-1">{formatStock(reportData.summary.totalStockUnits)} unit</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Valuasi Modal</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalValuation)}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Potensi Omzet Penjualan</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalPotentialRevenue)}</p>
+                </div>
+              </>
+            )}
 
-        {/* Content Table */}
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="p-12 text-center text-slate-500 text-xs">Memuat data laporan dari database...</div>
-          ) : !reportData || !reportData.items || reportData.items.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-xs">Tidak ada data untuk periode ini.</div>
-          ) : (
-            <>
+            {selectedReport === 'stock-in' && (
+              <>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Faktur Penerimaan</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalTransactions} faktur</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Unit Diterima</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-800 mt-1">+{reportData.summary.totalQuantity} unit</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs col-span-2">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Belanja Modal Masuk</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalAmount)}</p>
+                </div>
+              </>
+            )}
+
+            {selectedReport === 'sales' && (
+              <>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Omzet Penjualan</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{formatRupiah(reportData.summary.totalRevenue)}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Beban Pokok (HPP)</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-600 mt-1">{formatRupiah(reportData.summary.totalHpp)}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Laba Kotor Bersih</span>
+                  <p className="text-xl font-bold tabular-nums text-emerald-700 mt-1">{formatRupiah(reportData.summary.grossProfit)}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Persentase Margin</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.marginPercentage}%</p>
+                </div>
+              </>
+            )}
+
+            {selectedReport === 'low-stock' && (
+              <>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Total Barang Kritis</span>
+                  <p className="text-xl font-bold tabular-nums text-slate-900 mt-1">{reportData.summary.totalAlerts} item</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Habis Total</span>
+                  <p className="text-xl font-bold tabular-nums text-rose-700 mt-1">{reportData.summary.outOfStockCount} item</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Menipis di Batas Min</span>
+                  <p className="text-xl font-bold tabular-nums text-amber-700 mt-1">{reportData.summary.lowStockCount} item</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-slate-200/90 shadow-2xs">
+                  <span className="text-[11px] uppercase font-semibold text-slate-500 tracking-wider">Estimasi Modal Reorder</span>
+                  <p className="text-xl font-bold tabular-nums text-blue-700 mt-1">{formatRupiah(reportData.summary.totalEstimatedRestockCost)}</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Table Container */}
+          <div className="bg-white rounded-lg border border-slate-200/90 shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  Rincian Baris Rekapitulasi Data
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Menampilkan {reportData.items?.length || 0} entri terdata pada periode ini
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
               {/* TABLE: Current Stock */}
               {selectedReport === 'current-stock' && (
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
                     <tr>
-                      <th className="py-2.5 px-3">SKU</th>
+                      <th className="py-2.5 px-3">Kode SKU</th>
                       <th className="py-2.5 px-3">Nama Barang</th>
                       <th className="py-2.5 px-3">Kategori</th>
-                      <th className="py-2.5 px-2 text-right">Stok</th>
+                      <th className="py-2.5 px-2 text-right">Stok Fisik</th>
                       <th className="py-2.5 px-2 text-right">Min</th>
                       <th className="py-2.5 px-3 text-right">Harga Modal</th>
                       <th className="py-2.5 px-3 text-right">Harga Jual</th>
@@ -470,7 +476,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
                         <td className="py-2.5 px-3 text-slate-500">{formatDateIndo(it.transaction_date)}</td>
                         <td className="py-2.5 px-3 font-medium text-slate-800">{it.supplier_name}</td>
                         <td className="py-2.5 px-3 font-semibold text-slate-900">{it.name}</td>
-                        <td className="py-2.5 px-2 text-right font-mono font-bold text-blue-700">+{it.quantity} {it.unit}</td>
+                        <td className="py-2.5 px-2 text-right font-mono text-slate-800">{it.quantity} {it.unit}</td>
                         <td className="py-2.5 px-3 text-right font-mono text-slate-600">{formatRupiah(it.purchase_price)}</td>
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">{formatRupiah(it.subtotal)}</td>
                       </tr>
@@ -533,16 +539,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
                         <td className="py-2.5 px-3 font-mono font-medium text-slate-700">{it.sku}</td>
                         <td className="py-2.5 px-3 font-semibold text-slate-900">{it.name}</td>
                         <td className="py-2.5 px-3 text-slate-500">{it.category}</td>
-                        <td className="py-2.5 px-2 text-right font-mono font-bold text-red-600">
+                        <td className="py-2.5 px-2 text-right font-mono font-bold text-rose-700">
                           {formatStock(it.current_stock, it.unit)}
                         </td>
                         <td className="py-2.5 px-2 text-right font-mono text-slate-500">{it.min_stock}</td>
-                        <td className="py-2.5 px-2 text-right font-mono text-amber-700 font-semibold">-{it.deficit}</td>
-                        <td className="py-2.5 px-3 text-right font-mono text-blue-700 font-bold">+{it.recommended_order} {it.unit}</td>
+                        <td className="py-2.5 px-2 text-right font-mono font-bold text-red-600">-{it.deficit}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-blue-700">+{it.recommended_order} {it.unit}</td>
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">{formatRupiah(it.estimated_cost)}</td>
                         <td className="py-2.5 px-3 text-center">
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                            it.status === 'HABIS' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+                            it.status === 'HABIS TOTAL' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
                           }`}>
                             {it.status}
                           </span>
@@ -552,10 +558,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ categories, settings }
                   </tbody>
                 </table>
               )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

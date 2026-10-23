@@ -13,8 +13,7 @@ import {
   BarChart3,
   Users,
   Settings,
-  X,
-  Store
+  X
 } from 'lucide-react';
 
 export type NavTab =
@@ -49,7 +48,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const isAdmin = user?.role === 'admin';
 
-  const navItem = (tab: NavTab, label: string, Icon: React.ElementType, adminOnly = false) => {
+  const navItem = (
+    tab: NavTab, 
+    label: string, 
+    Icon: React.ElementType, 
+    adminOnly = false
+  ) => {
     if (adminOnly && !isAdmin) return null;
     const isActive = activeTab === tab;
 
@@ -110,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Close button for mobile */}
             <button
               onClick={onCloseMobile}
-              className="p-1.5 text-slate-400 hover:text-slate-700 rounded-md lg:hidden"
+              className="p-1.5 text-slate-400 hover:text-slate-700 rounded-md lg:hidden cursor-pointer"
               aria-label="Tutup navigasi"
             >
               <X className="w-4 h-4" />
@@ -137,7 +141,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="space-y-0.5">
                 {navItem('sales-pos', 'Kasir Penjualan (POS)', ShoppingCart)}
                 {navItem('stock-in', 'Penerimaan Barang Masuk', ArrowDownLeft)}
-                {navItem('stock-opname', 'Stok Opname / Koreksi', Sliders, true)}
+                {/* Enabled for both staff and admin as requested */}
+                {navItem('stock-opname', 'Stok Opname & Audit Fisik', Sliders, false)}
               </div>
             </div>
 
@@ -147,6 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Master Data
               </p>
               <div className="space-y-0.5">
+                {/* Full access for both staff and admin as requested */}
                 {navItem('products', 'Daftar Barang & SKU', Package)}
                 {navItem('categories', 'Kategori Komoditas', Layers)}
                 {navItem('suppliers', 'Daftar Pemasok', Truck)}
@@ -164,29 +170,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
 
-            {/* Nav Group: SISTEM */}
+            {/* Nav Group: PENGATURAN (Admin Only) */}
             {isAdmin && (
               <div>
                 <p className="px-3 text-[11px] font-semibold text-slate-400 mb-1">
-                  Konfigurasi
+                  Pengaturan
                 </p>
                 <div className="space-y-0.5">
-                  {navItem('users', 'Manajemen Petugas', Users, true)}
-                  {navItem('settings', 'Pengaturan Profil Toko', Settings, true)}
+                  {navItem('users', 'Manajemen Pengguna', Users, true)}
+                  {navItem('settings', 'Pengaturan Toko', Settings, true)}
                 </div>
               </div>
             )}
           </nav>
         </div>
 
-        {/* Bottom Status Indicator */}
+        {/* Bottom User Status */}
         <div className="p-3 border-t border-slate-200/80 bg-slate-50/50 shrink-0">
-          <div className="flex items-center justify-between text-[11px] text-slate-500 px-2 py-1">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Sistem Aktif</span>
+          <div className="flex items-center justify-between text-[11px] text-slate-600 px-2 py-1">
+            <span className="flex items-center gap-1.5 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="truncate">{user?.name || 'Pengguna'}</span>
             </span>
-            <span className="font-mono text-slate-400">v1.2</span>
+            <span className="text-slate-400 capitalize shrink-0">{user?.role === 'admin' ? 'Admin' : 'Petugas'}</span>
           </div>
         </div>
       </aside>

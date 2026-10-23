@@ -349,7 +349,7 @@ apiRouter.get('/products/:id', requireAuth, (req: AuthenticatedRequest, res: Res
   });
 });
 
-apiRouter.post('/products', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/products', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { sku, name, category_id, unit, purchase_price, selling_price, current_stock, min_stock, description } = req.body;
 
@@ -435,7 +435,7 @@ apiRouter.post('/products', requireAdmin, async (req: AuthenticatedRequest, res:
   }
 });
 
-apiRouter.put('/products/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/products/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { sku, name, category_id, unit, purchase_price, selling_price, min_stock, description } = req.body;
     const { id } = req.params;
@@ -479,7 +479,7 @@ apiRouter.put('/products/:id', requireAdmin, async (req: AuthenticatedRequest, r
   }
 });
 
-apiRouter.patch('/products/:id/toggle-status', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+apiRouter.patch('/products/:id/toggle-status', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const updated = await dbInstance.runTransaction((db) => {
@@ -1139,7 +1139,7 @@ apiRouter.post('/sales/:id/cancel', requireAdmin, async (req: AuthenticatedReque
 // 8. STOK OPNAME & PENYESUAIAN (ADJUSTMENT)
 // ==========================================
 
-apiRouter.post('/stock/adjustments', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/stock/adjustments', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { product_id, physical_stock, reason } = req.body;
 

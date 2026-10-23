@@ -2,20 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { User, StoreSettings } from '../types/index.js';
 import { 
   Menu, 
-  Bell, 
   LogOut, 
-  User as UserIcon, 
   ChevronDown, 
-  Check, 
   AlertTriangle,
-  RefreshCw
+  User as UserIcon
 } from 'lucide-react';
 
 interface HeaderProps {
   user: User | null;
   settings?: StoreSettings | null;
   onLogout: () => void;
-  onSwitchDemo: (role: 'admin' | 'petugas') => void;
+  onSwitchDemo?: (role: 'admin' | 'petugas') => void;
   lowStockCount: number;
   onNavigateToLowStock: () => void;
   onToggleSidebarMobile: () => void;
@@ -26,7 +23,6 @@ export const Header: React.FC<HeaderProps> = ({
   user,
   settings,
   onLogout,
-  onSwitchDemo,
   lowStockCount,
   onNavigateToLowStock,
   onToggleSidebarMobile,
@@ -45,8 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const isAdmin = user?.role === 'admin';
-
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-slate-200/80">
       <div className="px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between gap-4">
@@ -54,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onToggleSidebarMobile}
-            className="p-1.5 text-slate-500 hover:text-slate-800 rounded-md lg:hidden hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-800 rounded-md lg:hidden hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Buka navigasi"
           >
             <Menu className="w-5 h-5" />
@@ -71,8 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
         </div>
 
-        {/* Right: Low Stock Alert, Role switcher, User menu */}
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        {/* Right: Low Stock Alert & User menu */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Low Stock Indicator */}
           {lowStockCount > 0 ? (
             <button
@@ -93,23 +87,23 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-          {/* User Profile & Role Switcher Menu */}
+          {/* User Profile Menu */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-2.5 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-left"
+              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-left"
               aria-expanded={userDropdownOpen}
               aria-haspopup="true"
             >
-              <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold">
+              <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
               <div className="hidden md:block">
-                <p className="text-xs font-semibold text-slate-900 leading-tight truncate max-w-[130px]">
+                <p className="text-xs font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
                   {user?.name}
                 </p>
-                <p className="text-[11px] text-slate-500 leading-tight">
-                  {isAdmin ? 'Pemilik Toko' : 'Petugas Kasir'}
+                <p className="text-[11px] text-slate-500 leading-tight capitalize">
+                  {user?.role === 'admin' ? 'Administrator' : 'Petugas Toko'}
                 </p>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
@@ -117,53 +111,22 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Dropdown Menu */}
             {userDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-50 animate-in fade-in-50 zoom-in-95">
-                <div className="px-3 py-2 border-b border-slate-100">
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in-50 zoom-in-95">
+                <div className="px-4 py-2 border-b border-slate-100">
                   <p className="text-xs font-bold text-slate-900">{user?.name}</p>
-                  <p className="text-[11px] text-slate-500 font-mono">{user?.username}</p>
-                </div>
-
-                {/* Role Switcher */}
-                <div className="px-3 py-2 border-b border-slate-100">
-                  <p className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 mb-1.5">
-                    Ganti Peran Pengguna
+                  <p className="text-[11px] text-slate-500 font-mono mt-0.5">{user?.email}</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5 capitalize">
+                    {user?.role === 'admin' ? 'Hak Akses: Administrator' : 'Hak Akses: Petugas Operasional'}
                   </p>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => {
-                        onSwitchDemo('admin');
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs rounded hover:bg-slate-50 text-left transition-colors cursor-pointer"
-                    >
-                      <span className={isAdmin ? 'font-semibold text-slate-900' : 'text-slate-600'}>
-                        Admin (Pemilik)
-                      </span>
-                      {isAdmin && <Check className="w-3.5 h-3.5 text-slate-900" />}
-                    </button>
-                    <button
-                      onClick={() => {
-                        onSwitchDemo('petugas');
-                        setUserDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs rounded hover:bg-slate-50 text-left transition-colors cursor-pointer"
-                    >
-                      <span className={!isAdmin ? 'font-semibold text-slate-900' : 'text-slate-600'}>
-                        Petugas (Kasir)
-                      </span>
-                      {!isAdmin && <Check className="w-3.5 h-3.5 text-slate-900" />}
-                    </button>
-                  </div>
                 </div>
 
-                {/* Logout Option */}
                 <div className="p-1">
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false);
                       onLogout();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded transition-colors text-left cursor-pointer"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors text-left cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Keluar dari Akun</span>

@@ -15,6 +15,7 @@ import { ReportsView } from './components/ReportsView.js';
 import { UsersView } from './components/UsersView.js';
 import { SettingsView } from './components/SettingsView.js';
 import { LoginModal } from './components/LoginModal.js';
+import { AccessDenied } from './components/AccessDenied.js';
 
 export default function App() {
   // Authentication state
@@ -38,27 +39,22 @@ export default function App() {
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
 
-  // 1. Initial Auth Check
+  // 1. Initial Auth Check (NO auto-login, require manual login first)
   useEffect(() => {
     const checkAuth = async () => {
       const token = getStoredToken();
       if (!token) {
-        // Auto demo login as admin for instant interactive test drive
-        try {
-          const res = await api.switchDemoUser('admin');
-          setStoredToken(res.token);
-          setCurrentUser(res.user);
-        } catch {
-          setCurrentUser(null);
-        }
-      } else {
-        try {
-          const res = await api.getCurrentUser();
-          setCurrentUser(res.user);
-        } catch {
-          clearStoredToken();
-          setCurrentUser(null);
-        }
+        // Do not auto login. Require entering username and password manually.
+        setCurrentUser(null);
+        setAuthChecked(true);
+        return;
+      }
+      try {
+        const res = await api.getCurrentUser();
+        setCurrentUser(res.user);
+      } catch {
+        clearStoredToken();
+        setCurrentUser(null);
       }
       setAuthChecked(true);
     };
@@ -104,11 +100,21 @@ export default function App() {
     }
   }, [currentUser, refreshAllData]);
 
+  // Enforce role-based access redirection if staff lands on restricted tab
+  useEffect(() => {
+    if (currentUser && currentUser.role !== 'admin') {
+      if (activeTab === 'users' || activeTab === 'settings') {
+        setActiveTab('dashboard');
+      }
+    }
+  }, [currentUser, activeTab]);
+
   // Auth actions
   const handleLogin = async (credentials: { username: string; password: string }) => {
     const res = await api.login(credentials);
     setStoredToken(res.token);
     setCurrentUser(res.user);
+    setActiveTab('dashboard');
   };
 
   const handleLogout = async () => {
@@ -117,6 +123,7 @@ export default function App() {
     } catch {}
     clearStoredToken();
     setCurrentUser(null);
+    setActiveTab('dashboard');
   };
 
   const handleSwitchDemo = async (role: 'admin' | 'petugas') => {
@@ -124,8 +131,7 @@ export default function App() {
       const res = await api.switchDemoUser(role);
       setStoredToken(res.token);
       setCurrentUser(res.user);
-      // If switched to staff and currently in admin tab, redirect to dashboard
-      if (role === 'petugas' && (activeTab === 'users' || activeTab === 'settings' || activeTab === 'stock-opname')) {
+      if (role === 'petugas' && (activeTab === 'users' || activeTab === 'settings')) {
         setActiveTab('dashboard');
       }
     } catch (err: any) {
@@ -174,6 +180,7 @@ export default function App() {
     );
   }
 
+  // If user is not authenticated, show manual login form
   if (!currentUser) {
     return <LoginModal onLogin={handleLogin} onSwitchDemo={handleSwitchDemo} />;
   }
@@ -216,6 +223,7 @@ export default function App() {
             <DashboardView
               data={dashboardData}
               loading={dashboardLoading}
+              user={currentUser}
               onNavigateToStockIn={() => setActiveTab('stock-in')}
               onNavigateToProducts={(status) => {
                 setProductsInitialFilter(status || 'all');
@@ -347,22 +355,38 @@ export default function App() {
           )}
 
           {activeTab === 'reports' && (
-            <ReportsView categories={categories} settings={settings} />
+            <ReportsView categories={categories} settings={settings} user={currentUser} />
           )}
 
           {activeTab === 'users' && (
-            <UsersView currentUser={currentUser} />
+            currentUser?.role === 'admin' ? (
+              <UsersView currentUser={currentUser} />
+            ) : (
+              <AccessDenied
+                title="Akses Terbatas: Khusus Administrator"
+                message="Manajemen Pengguna dan Penugasan Hak Akses Petugas hanya dapat diakses oleh Pemilik Toko (Admin)."
+                onBack={() => setActiveTab('dashboard')}
+              />
+            )
           )}
 
           {activeTab === 'settings' && (
-            <SettingsView
-              settings={settings}
-              onUpdateSettings={async (data) => {
-                await api.updateSettings(data);
-                refreshAllData();
-              }}
-              onRefresh={refreshAllData}
-            />
+            currentUser?.role === 'admin' ? (
+              <SettingsView
+                settings={settings}
+                onUpdateSettings={async (data) => {
+                  await api.updateSettings(data);
+                  refreshAllData();
+                }}
+                onRefresh={refreshAllData}
+              />
+            ) : (
+              <AccessDenied
+                title="Akses Terbatas: Khusus Administrator"
+                message="Pengaturan Profil Toko, Alamat, dan Format Struk Cetak hanya dapat diubah oleh Pemilik Toko (Admin)."
+                onBack={() => setActiveTab('dashboard')}
+              />
+            )
           )}
         </main>
       </div>

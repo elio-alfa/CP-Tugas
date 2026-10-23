@@ -204,7 +204,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
       p.selling_price,
       p.current_stock,
       p.min_stock,
-      !p.is_active ? 'NONAKTIF' : p.current_stock <= 0 ? 'HABIS' : p.current_stock <= p.min_stock ? 'MENIPIS' : 'AMAN',
+      !p.is_active ? 'NONAKTIF' : p.current_stock <= 0 ? 'HABIS' : p.current_stock <= p.min_stock ? 'MENIPIS' : 'AMAN'
     ]);
     exportToCsv(`data-barang-sembako-${new Date().toISOString().split('T')[0]}`, headers, rows);
   };
@@ -218,7 +218,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <Package className="w-4 h-4 text-slate-700" />
             <span>Katalog Barang & Master SKU</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-1">
             Kelola master data sembako, kode SKU, harga pokok pembelian (HPP), harga eceran, dan ambang batas minimum.
           </p>
         </div>
@@ -233,15 +233,13 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <span>Ekspor CSV</span>
           </button>
 
-          {isAdmin && (
-            <button
-              onClick={handleOpenAdd}
-              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Tambah Barang</span>
-            </button>
-          )}
+          <button
+            onClick={handleOpenAdd}
+            className="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Tambah Barang</span>
+          </button>
         </div>
       </div>
 
@@ -422,35 +420,31 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                             <Eye className="w-3.5 h-3.5" />
                           </button>
 
-                          {isAdmin && (
-                            <>
-                              <button
-                                onClick={() => handleOpenEdit(p)}
-                                className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors cursor-pointer"
-                                title="Edit barang"
-                              >
-                                <Edit className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => onToggleStatus(p.id)}
-                                className={`p-1.5 rounded transition-colors cursor-pointer ${
-                                  p.is_active
-                                    ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50'
-                                    : 'text-emerald-600 hover:bg-emerald-50'
-                                }`}
-                                title={p.is_active ? 'Nonaktifkan barang' : 'Aktifkan barang'}
-                              >
-                                <Power className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => setDeletingProductId(p.id)}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                                title="Hapus barang (dilindungi integritas referensi)"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          )}
+                          <button
+                            onClick={() => handleOpenEdit(p)}
+                            className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+                            title="Edit barang"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onToggleStatus(p.id)}
+                            className={`p-1.5 rounded transition-colors cursor-pointer ${
+                              p.is_active
+                                ? 'text-slate-400 hover:text-amber-600 hover:bg-amber-50'
+                                : 'text-emerald-600 hover:bg-emerald-50'
+                            }`}
+                            title={p.is_active ? 'Nonaktifkan barang' : 'Aktifkan barang'}
+                          >
+                            <Power className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeletingProductId(p.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                            title="Hapus barang"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
