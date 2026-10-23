@@ -11,8 +11,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Body parser for JSON
-  app.use(express.json());
+  // Body parser for JSON with logo image support (up to 10MB)
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Mount API router
   app.use('/api', apiRouter);

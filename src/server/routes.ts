@@ -1583,13 +1583,14 @@ apiRouter.get('/settings', requireAuth, (req: AuthenticatedRequest, res: Respons
 
 apiRouter.put('/settings', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { store_name, address, phone, receipt_footer, default_min_stock } = req.body;
+    const { store_name, address, phone, receipt_footer, default_min_stock, logo_url } = req.body;
     const updated = await dbInstance.runTransaction((db) => {
       if (store_name) db.settings.store_name = store_name.trim();
       if (address !== undefined) db.settings.address = address.trim();
       if (phone !== undefined) db.settings.phone = phone.trim();
       if (receipt_footer !== undefined) db.settings.receipt_footer = receipt_footer.trim();
       if (default_min_stock !== undefined) db.settings.default_min_stock = Number(default_min_stock) || 10;
+      if (logo_url !== undefined) db.settings.logo_url = logo_url;
       return db.settings;
     });
 

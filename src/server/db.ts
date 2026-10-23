@@ -164,6 +164,7 @@ export interface StoreSettings {
   receipt_footer: string;
   default_min_stock: number;
   currency_symbol: string;
+  logo_url?: string;
 }
 
 export interface DatabaseSchema {

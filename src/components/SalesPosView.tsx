@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Product, Category, SaleTransaction, User, StoreSettings } from '../types/index.js';
 import { formatRupiah, formatStock, formatDateIndo, formatDateTimeIndo } from '../utils/format.js';
+import { StoreLogo } from './StoreLogo.js';
 import {
   ShoppingCart,
   Search,
@@ -201,16 +202,16 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header & Tabs */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-lg border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-emerald-600" />
-            <span>Kasir POS (Penjualan Sembako)</span>
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <ShoppingCart className="w-4 h-4 text-slate-700" />
+            <span>Kasir Penjualan (Point of Sale)</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Pencatatan penjualan kasir, validasi ketersediaan stok fisik secara langsung, dan pencetakan struk belanja.
+            Pencatatan transaksi eceran kasir dengan pengurangan stok otomatis dan penerbitan struk belanja.
           </p>
         </div>
 
@@ -219,49 +220,49 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
           <button
             onClick={() => setActiveTab('pos')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
-              activeTab === 'pos' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              activeTab === 'pos' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Antarmuka Kasir
+            Terminal Kasir
           </button>
           <button
             onClick={() => setActiveTab('history')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
-              activeTab === 'history' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              activeTab === 'history' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Riwayat Struk Penjualan ({salesList.length})
+            Riwayat Nota ({salesList.length})
           </button>
         </div>
       </div>
 
       {/* View 1: POS Interface */}
       {activeTab === 'pos' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left Column: Product Catalog & Search (7 Cols) */}
           <div className="lg:col-span-7 space-y-4">
             {/* Search and Category Quick Filters */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+            <div className="bg-white p-3.5 rounded-lg border border-slate-200/80 shadow-2xs space-y-3">
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   placeholder="Ketik nama sembako atau kode SKU barang..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
                 />
               </div>
 
-              {/* Category Chips */}
+              {/* Category Segmented Tabs */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('all')}
-                  className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                     selectedCategory === 'all'
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-slate-900 text-white font-semibold'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
                   }`}
                 >
                   Semua ({products.filter((p) => p.is_active).length})
@@ -271,10 +272,10 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
                     key={c.id}
                     type="button"
                     onClick={() => setSelectedCategory(c.id)}
-                    className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                    className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                       selectedCategory === c.id
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-slate-900 text-white font-semibold'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
                     }`}
                   >
                     {c.name}
@@ -286,8 +287,8 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
             {/* Product Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {availableProducts.length === 0 ? (
-                <div className="col-span-full bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-400 text-xs">
-                  Tidak ada barang sembako yang cocok.
+                <div className="col-span-full bg-white p-8 rounded-lg border border-slate-200/80 text-center text-slate-400 text-xs font-mono">
+                  Tidak ada komoditas sembako yang cocok dengan filter.
                 </div>
               ) : (
                 availableProducts.map((p) => {
@@ -299,38 +300,38 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
                     <div
                       key={p.id}
                       onClick={() => !isOut && handleAddToCart(p)}
-                      className={`bg-white p-3.5 rounded-xl border transition-all text-left flex flex-col justify-between select-none ${
+                      className={`bg-white p-3 rounded-lg border transition-all text-left flex flex-col justify-between select-none ${
                         isOut
-                          ? 'border-red-200 bg-red-50/20 opacity-60 cursor-not-allowed'
-                          : 'border-slate-200 hover:border-emerald-500 hover:shadow-xs cursor-pointer'
+                          ? 'border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed'
+                          : 'border-slate-200/90 hover:border-slate-400 hover:shadow-2xs cursor-pointer'
                       }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between gap-1 text-[10px] mb-1">
-                          <span className="font-mono text-slate-400 font-bold">{p.sku}</span>
+                        <div className="flex items-center justify-between text-[11px] mb-1">
+                          <span className="font-mono text-slate-400 text-[10px]">{p.sku}</span>
                           <span
-                            className={`font-semibold px-1.5 py-0.5 rounded ${
+                            className={`font-mono text-[10px] font-medium tabular-nums ${
                               isOut
-                                ? 'bg-red-100 text-red-700'
+                                ? 'text-rose-600 font-bold'
                                 : isLow
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-slate-100 text-slate-600'
+                                ? 'text-amber-800'
+                                : 'text-slate-500'
                             }`}
                           >
                             Stok: {formatStock(p.current_stock, p.unit)}
                           </span>
                         </div>
-                        <h4 className="font-semibold text-xs text-slate-900 line-clamp-2 leading-tight">
+                        <h4 className="font-semibold text-xs text-slate-900 line-clamp-2 leading-snug">
                           {p.name}
                         </h4>
                       </div>
 
                       <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span className="font-mono font-bold text-xs text-emerald-700">
+                        <span className="font-mono font-bold text-xs text-slate-900 tabular-nums">
                           {formatRupiah(p.selling_price)}
                         </span>
                         {cartQty > 0 ? (
-                          <span className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
+                          <span className="w-5 h-5 rounded bg-slate-900 text-white text-[11px] font-mono font-bold flex items-center justify-center">
                             {cartQty}
                           </span>
                         ) : (
@@ -655,7 +656,14 @@ export const SalesPosView: React.FC<SalesPosViewProps> = ({
 
             {/* Receipt Preview Area (Format Struk Thermal 80mm) */}
             <div id="printable-receipt" className="p-4 my-2 font-mono text-xs text-slate-900 bg-slate-50/50 rounded-xl border border-slate-200">
-              <div className="text-center pb-3 border-b border-dashed border-slate-300">
+              <div className="text-center pb-3 border-b border-dashed border-slate-300 flex flex-col items-center">
+                <div className="mb-2">
+                  <StoreLogo
+                    logoUrl={settings?.logo_url}
+                    storeName={settings?.store_name}
+                    size="sm"
+                  />
+                </div>
                 <h3 className="font-bold text-sm tracking-tight">{settings?.store_name || 'TOKO SEMBAKO BERKAH MANDIRI'}</h3>
                 <p className="text-[10px] text-slate-500 mt-0.5">{settings?.address || 'Jl. Pemuda Raya No. 108, Jakarta'}</p>
                 <p className="text-[10px] text-slate-500">Telp: {settings?.phone || '0812-9876-5432'}</p>

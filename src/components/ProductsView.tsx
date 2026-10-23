@@ -210,56 +210,56 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Top Header Card */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-lg border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Package className="w-5 h-5 text-emerald-600" />
-            <span>Manajemen Data Barang & Stok Sembako</span>
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <Package className="w-4 h-4 text-slate-700" />
+            <span>Katalog Barang & Master SKU</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Kelola katalog barang sembako, kode SKU unik, harga modal, harga eceran, dan ambang batas minimum.
+            Kelola master data sembako, kode SKU, harga pokok pembelian (HPP), harga eceran, dan ambang batas minimum.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center">
+        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
           <button
             onClick={handleExportCsv}
-            className="px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded transition-colors cursor-pointer flex items-center gap-1.5"
             title="Download data barang ke format file CSV/Excel"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Ekspor CSV</span>
           </button>
 
           {isAdmin && (
             <button
               onClick={handleOpenAdd}
-              className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Barang Baru</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Barang</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+      <div className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-2xs space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {/* Search Box */}
           <div className="sm:col-span-1 lg:col-span-2 relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Cari berdasarkan nama barang atau kode SKU..."
+              placeholder="Cari nama barang atau kode SKU..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900"
             />
           </div>
 
@@ -271,7 +271,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                 setSelectedCategory(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 bg-white"
+              className="w-full py-1.5 px-3 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 bg-white"
             >
               <option value="all">Semua Kategori</option>
               {categories.map((c) => (
@@ -290,13 +290,13 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                 setSelectedStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800 bg-white"
+              className="w-full py-1.5 px-3 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 bg-white"
             >
               <option value="all">Semua Status Stok</option>
-              <option value="safe">Stok Aman (&gt; Min)</option>
-              <option value="low">Stok Menipis (≤ Min)</option>
-              <option value="out">Stok Habis (0)</option>
-              <option value="inactive">Nonaktif</option>
+              <option value="safe">Stok Aman (&gt; Batas)</option>
+              <option value="low">Stok Menipis (≤ Batas)</option>
+              <option value="out">Stok Habis (Kosong)</option>
+              <option value="inactive">Status Nonaktif</option>
             </select>
           </div>
         </div>
@@ -304,20 +304,20 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
         {/* Counter Info */}
         <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
           <div>
-            Menampilkan <span className="font-semibold text-slate-800">{filteredProducts.length}</span> barang
+            Menampilkan <span className="font-semibold text-slate-800 font-mono tabular-nums">{filteredProducts.length}</span> barang
             {searchTerm && ` untuk pencarian "${searchTerm}"`}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+          <div className="flex items-center gap-4 text-[11px]">
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
               Aman
             </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
               Menipis
             </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
               Habis
             </span>
           </div>
@@ -325,27 +325,27 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200/80 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+            <thead className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="py-3 px-4">No</th>
-                <th className="py-3 px-4">Kode SKU</th>
-                <th className="py-3 px-4">Nama Barang Sembako</th>
-                <th className="py-3 px-4">Kategori</th>
-                <th className="py-3 px-3 text-right">Harga Modal</th>
-                <th className="py-3 px-3 text-right">Harga Jual</th>
-                <th className="py-3 px-3 text-right">Stok Fisik</th>
-                <th className="py-3 px-3 text-right">Batas Min</th>
-                <th className="py-3 px-4 text-center">Status</th>
-                <th className="py-3 px-4 text-center">Aksi</th>
+                <th className="py-2.5 px-4 font-mono w-10">No</th>
+                <th className="py-2.5 px-4 font-mono">Kode SKU</th>
+                <th className="py-2.5 px-4">Nama Komoditas</th>
+                <th className="py-2.5 px-4">Kategori</th>
+                <th className="py-2.5 px-3 text-right">Harga Modal</th>
+                <th className="py-2.5 px-3 text-right">Harga Jual</th>
+                <th className="py-2.5 px-3 text-right">Stok Fisik</th>
+                <th className="py-2.5 px-3 text-right">Min</th>
+                <th className="py-2.5 px-4 text-center">Status</th>
+                <th className="py-2.5 px-4 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {paginatedProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-400">
+                  <td colSpan={10} className="py-8 text-center text-slate-400 font-mono">
                     Tidak ada barang yang sesuai dengan kriteria filter.
                   </td>
                 </tr>
@@ -358,67 +358,65 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   return (
                     <tr
                       key={p.id}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        !p.is_active ? 'bg-slate-50/40 opacity-75' : ''
+                      className={`hover:bg-slate-50/60 transition-colors ${
+                        !p.is_active ? 'bg-slate-50/30 opacity-70' : ''
                       }`}
                     >
-                      <td className="py-3 px-4 text-slate-400 font-mono">{rowNumber}</td>
-                      <td className="py-3 px-4 font-mono font-medium text-slate-700">{p.sku}</td>
-                      <td className="py-3 px-4">
+                      <td className="py-2.5 px-4 text-slate-400 font-mono text-[11px]">{rowNumber}</td>
+                      <td className="py-2.5 px-4 font-mono font-medium text-slate-700 text-[11px]">{p.sku}</td>
+                      <td className="py-2.5 px-4">
                         <div className="font-semibold text-slate-900">{p.name}</div>
                         {p.description && (
                           <div className="text-[11px] text-slate-400 line-clamp-1">{p.description}</div>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-slate-600">{p.category_name || '-'}</td>
-                      <td className="py-3 px-3 text-right font-mono text-slate-600">
+                      <td className="py-2.5 px-4 text-slate-600">{p.category_name || '-'}</td>
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-600 tabular-nums">
                         {formatRupiah(p.purchase_price)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono font-medium text-slate-900">
+                      <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900 tabular-nums">
                         {formatRupiah(p.selling_price)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono font-bold">
+                      <td className="py-2.5 px-3 text-right font-mono font-bold tabular-nums">
                         <span
                           className={
                             !p.is_active
                               ? 'text-slate-400'
                               : isOut
-                              ? 'text-red-600 font-extrabold'
+                              ? 'text-rose-700 font-bold'
                               : isLow
-                              ? 'text-amber-700'
+                              ? 'text-amber-800'
                               : 'text-slate-800'
                           }
                         >
                           {formatStock(p.current_stock, p.unit)}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-right font-mono text-slate-500">
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-500 tabular-nums">
                         {p.min_stock} {p.unit}
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-2.5 px-4 text-center whitespace-nowrap">
                         {!p.is_active ? (
-                          <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                            NONAKTIF
-                          </span>
+                          <span className="text-slate-400 font-medium text-xs">Nonaktif</span>
                         ) : isOut ? (
-                          <span className="text-[10px] font-semibold text-red-700 bg-red-100 px-2 py-0.5 rounded">
-                            HABIS
+                          <span className="text-rose-700 font-semibold text-xs flex items-center justify-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600" /> Habis
                           </span>
                         ) : isLow ? (
-                          <span className="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
-                            MENIPIS
+                          <span className="text-amber-800 font-semibold text-xs flex items-center justify-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-600" /> Menipis
                           </span>
                         ) : (
-                          <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
-                            AMAN
+                          <span className="text-emerald-700 font-medium text-xs flex items-center justify-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" /> Aman
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-2.5 px-4 text-center">
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => setViewingProduct(p)}
-                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                            className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors cursor-pointer"
                             title="Lihat riwayat pergerakan stok"
                           >
                             <Eye className="w-3.5 h-3.5" />

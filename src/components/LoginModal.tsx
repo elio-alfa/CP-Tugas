@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Store, ShieldCheck, UserCheck, KeyRound, AlertCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight, ShieldCheck, UserCheck } from 'lucide-react';
+import { StoreLogo } from './StoreLogo.js';
 
 interface LoginModalProps {
   onLogin: (credentials: { username: string; password: string }) => Promise<void>;
@@ -19,66 +20,69 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onSwitchDemo })
       setSubmitting(true);
       await onLogin({ username, password });
     } catch (err: any) {
-      setErrorMsg(err.message || 'Username atau password salah.');
+      setErrorMsg(err.message || 'Username atau kata sandi tidak valid.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleSelectPreset = (u: string, p: string) => {
+  const handleSelectPreset = (u: string, p: string, role: 'admin' | 'petugas') => {
     setUsername(u);
     setPassword(p);
     setErrorMsg(null);
+    onSwitchDemo(role);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-        {/* Banner */}
-        <div className="bg-slate-900 p-6 text-center text-white border-b border-slate-800">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center mb-3 border border-emerald-500/30">
-            <Store className="w-6 h-6" />
+    <div className="min-h-screen bg-slate-100 flex flex-col justify-center items-center p-4">
+      <div className="max-w-md w-full bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Header Branding */}
+        <div className="p-6 border-b border-slate-100 text-center flex flex-col items-center">
+          <div className="mb-3">
+            <StoreLogo size="lg" />
           </div>
-          <h2 className="text-lg font-bold tracking-tight">TOKO SEMBAKO BERKAH MANDIRI</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Sistem Informasi Manajemen Stok & Point of Sale (POS) Berbasis Web
+          <h1 className="text-base font-bold text-slate-900 tracking-tight">
+            Toko Sembako Berkah Mandiri
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Sistem Informasi Manajemen Persediaan & Kasir Penjualan
           </p>
         </div>
 
         {/* Form Body */}
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-4">
           {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-2">
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-md flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Username atau Email
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Username / Identitas Pengguna
               </label>
               <input
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full py-2.5 px-3 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800"
-                placeholder="admin atau kasir"
+                className="w-full py-2 px-3 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 font-mono"
+                placeholder="admin / kasir"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Password
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Kata Sandi
               </label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full py-2.5 px-3 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-800"
+                className="w-full py-2 px-3 text-xs rounded border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900 font-mono"
                 placeholder="••••••••"
               />
             </div>
@@ -86,58 +90,57 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onSwitchDemo })
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-2 mt-2"
             >
-              <span>{submitting ? 'Memverifikasi...' : 'Masuk ke Sistem'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>{submitting ? 'Memproses...' : 'Masuk ke Sistem'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
 
-          {/* Quick Demo Credentials Switcher for Thesis Defense */}
-          <div className="pt-4 border-t border-slate-100 space-y-2">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-center">
-              Pilihan Akun Demo Sidang Tugas Akhir
-            </span>
-
+          {/* Quick Access Account Selector */}
+          <div className="pt-4 border-t border-slate-100">
+            <p className="text-[11px] font-semibold text-slate-400 mb-2">
+              Akses Cepat Pengujian:
+            </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  handleSelectPreset('admin', 'admin123');
-                  onSwitchDemo('admin');
-                }}
-                className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition-colors cursor-pointer group"
+                onClick={() => handleSelectPreset('admin', 'admin123', 'admin')}
+                className={`p-2.5 rounded border text-left transition-colors cursor-pointer ${
+                  username === 'admin' 
+                    ? 'border-slate-900 bg-slate-50' 
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                }`}
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Administrator</span>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900">
+                  <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Admin</span>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-0.5">Pemilik Toko (Full Access)</p>
-                <p className="text-[10px] font-mono text-slate-400 mt-1">admin / admin123</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Pemilik (Akses Penuh)</p>
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  handleSelectPreset('kasir', 'kasir123');
-                  onSwitchDemo('petugas');
-                }}
-                className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition-colors cursor-pointer group"
+                onClick={() => handleSelectPreset('kasir', 'kasir123', 'petugas')}
+                className={`p-2.5 rounded border text-left transition-colors cursor-pointer ${
+                  username === 'kasir' 
+                    ? 'border-slate-900 bg-slate-50' 
+                    : 'border-slate-200 bg-white hover:bg-slate-50'
+                }`}
               >
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Petugas Kasir</span>
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900">
+                  <UserCheck className="w-3.5 h-3.5 text-slate-700" />
+                  <span>Petugas</span>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-0.5">Operasional & Gudang</p>
-                <p className="text-[10px] font-mono text-slate-400 mt-1">kasir / kasir123</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Kasir & Operasional</p>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Academic Footer */}
-        <div className="p-3 bg-slate-50 border-t border-slate-100 text-center text-[11px] text-slate-500">
-          Tugas Akhir Sarjana Sistem Informasi · Versi Siap Sidang
+        {/* Quiet Footer */}
+        <div className="py-2.5 px-6 bg-slate-50 border-t border-slate-100 text-center text-[10px] text-slate-400 font-mono">
+          Manajemen Stok Sembako · Sesi Aman
         </div>
       </div>
     </div>

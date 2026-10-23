@@ -188,6 +188,7 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         user={currentUser}
+        settings={settings}
         isOpenMobile={isSidebarMobileOpen}
         onCloseMobile={() => setIsSidebarMobileOpen(false)}
       />
@@ -197,6 +198,7 @@ export default function App() {
         {/* Top Header */}
         <Header
           user={currentUser}
+          settings={settings}
           onLogout={handleLogout}
           onSwitchDemo={handleSwitchDemo}
           lowStockCount={lowStockCount}
