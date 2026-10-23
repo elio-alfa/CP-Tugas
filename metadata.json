@@ -2,5 +2,7 @@
   "name": "Sistem Informasi Manajemen Stok Toko Sembako",
   "description": "Sistem Informasi Manajemen Stok Barang dan POS Toko Sembako Berbasis Web dengan Pelacakan Persediaan, Transaksi Masuk/Keluar, dan Audit Trail Ledger untuk Tugas Akhir.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
