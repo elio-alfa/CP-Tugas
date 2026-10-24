@@ -39,27 +39,11 @@ export default function App() {
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
 
-  // 1. Initial Auth Check (NO auto-login, require manual login first)
+  // 1. Initial State: Always display Login screen as default primary view
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = getStoredToken();
-      if (!token) {
-        // Do not auto login. Require entering username and password manually.
-        setCurrentUser(null);
-        setAuthChecked(true);
-        return;
-      }
-      try {
-        const res = await api.getCurrentUser();
-        setCurrentUser(res.user);
-      } catch {
-        clearStoredToken();
-        setCurrentUser(null);
-      }
-      setAuthChecked(true);
-    };
-
-    checkAuth();
+    clearStoredToken();
+    setCurrentUser(null);
+    setAuthChecked(true);
   }, []);
 
   // 2. Fetch Master and Operational Data

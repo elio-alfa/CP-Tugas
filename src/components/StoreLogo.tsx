@@ -7,56 +7,47 @@ export interface StoreLogoProps {
   className?: string;
 }
 
+export const LetterTIcon: React.FC<{ className?: string }> = ({ className = 'w-full h-full' }) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`${className} drop-shadow-xs`}
+  >
+    {/* Modern bold monogram Letter T */}
+    <path
+      d="M6 8.5C6 7.12 7.12 6 8.5 6H23.5C24.88 6 26 7.12 26 8.5C26 9.88 24.88 11 23.5 11H18.5V24.5C18.5 25.88 17.38 27 16 27C14.62 27 13.5 25.88 13.5 24.5V11H8.5C7.12 11 6 9.88 6 8.5Z"
+      fill="currentColor"
+    />
+    {/* Subtle modern brand accent mark */}
+    <circle cx="23.5" cy="8.5" r="1.5" fill="#34D399" />
+  </svg>
+);
+
 export const PRESET_LOGOS = [
   {
     id: 'preset-emerald',
-    name: 'Hijau Berkah (Segar & Berkah)',
-    color: 'from-emerald-500 to-teal-700',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-        <path d="M3 6h18" />
-        <path d="M16 10a4 4 0 0 1-8 0" />
-      </svg>
-    ),
+    name: 'Hijau Berkah (Huruf T Sembako)',
+    color: 'from-emerald-600 via-teal-600 to-emerald-800',
+    icon: <LetterTIcon className="w-full h-full text-white" />,
   },
   {
     id: 'preset-amber',
-    name: 'Kuning Rezeki (Hangat & Ramah)',
-    color: 'from-amber-500 to-orange-600',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-        <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-        <path d="M2 7h20" />
-        <circle cx="12" cy="11" r="1.5" />
-      </svg>
-    ),
+    name: 'Kuning Emas (Huruf T Rezeki)',
+    color: 'from-amber-500 via-orange-500 to-amber-700',
+    icon: <LetterTIcon className="w-full h-full text-white" />,
   },
   {
     id: 'preset-indigo',
-    name: 'Biru Modern (Profesional & Rapi)',
-    color: 'from-blue-600 to-indigo-700',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="18" height="18" x="3" y="3" rx="2" />
-        <path d="M3 9h18" />
-        <path d="M9 21V9" />
-      </svg>
-    ),
+    name: 'Biru Modern (Huruf T Profesional)',
+    color: 'from-blue-600 via-indigo-600 to-indigo-800',
+    icon: <LetterTIcon className="w-full h-full text-white" />,
   },
   {
-    id: 'preset-rose',
-    name: 'Merah Semarak (Pasar Aktif)',
-    color: 'from-rose-500 to-red-700',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full text-white" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="8" cy="21" r="1" />
-        <circle cx="19" cy="21" r="1" />
-        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-      </svg>
-    ),
+    id: 'preset-slate',
+    name: 'Dark Slate (Huruf T Minimalis)',
+    color: 'from-slate-800 via-slate-900 to-black',
+    icon: <LetterTIcon className="w-full h-full text-white" />,
   },
 ];
 
@@ -82,7 +73,6 @@ export const StoreLogo: React.FC<StoreLogoProps> = ({
           alt={storeName}
           className="w-full h-full object-contain rounded-md"
           onError={(e) => {
-            // Fallback to initial if image fails
             (e.target as HTMLElement).style.display = 'none';
           }}
         />
@@ -96,7 +86,7 @@ export const StoreLogo: React.FC<StoreLogoProps> = ({
     const found = PRESET_LOGOS.find((p) => p.id === presetId) || PRESET_LOGOS[0];
     return (
       <div
-        className={`relative shrink-0 rounded-lg bg-gradient-to-br ${found.color} shadow-2xs flex items-center justify-center p-1.5 text-white ${sizeClasses} ${className}`}
+        className={`relative shrink-0 rounded-xl bg-gradient-to-br ${found.color} shadow-2xs flex items-center justify-center p-2 text-white ${sizeClasses} ${className}`}
         title={storeName}
       >
         {found.icon}
@@ -104,26 +94,13 @@ export const StoreLogo: React.FC<StoreLogoProps> = ({
     );
   }
 
-  // Default friendly modern logo for Toko Sembako:
-  // Friendly shopping basket & fresh leaf emblem in emerald gradient
+  // Default: Logo Huruf T Modern Toko Sembako in Emerald Gradient
   return (
     <div
-      className={`relative shrink-0 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 shadow-xs flex items-center justify-center p-2 text-white ring-1 ring-emerald-500/20 ${sizeClasses} ${className}`}
+      className={`relative shrink-0 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 shadow-xs flex items-center justify-center p-1.5 text-white ring-1 ring-emerald-500/20 ${sizeClasses} ${className}`}
       title={storeName}
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-full h-full text-white drop-shadow-xs"
-      >
-        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-        <path d="M3 6h18" />
-        <path d="M16 10a4 4 0 0 1-8 0" />
-      </svg>
+      <LetterTIcon className="w-full h-full text-white" />
     </div>
   );
 };
